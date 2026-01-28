@@ -8,7 +8,12 @@ const cors=require('cors')
  
 const app=express();
 const server=http.createServer(app);
-const io=socket(server);
+const io = socket(server, {
+    cors: {
+        origin: "*", // This tells the server to accept connections from any URL (like your Render link)
+        methods: ["GET", "POST"]
+    }
+});
 
 app.set('view engine','ejs');
 app.use(express.static(path.resolve("public")));
@@ -134,4 +139,9 @@ io.on("connection",(uniquesocket)=>{
     });
 });
 
-server.listen(4000);
+// Use the port assigned by Render, or default to 4000 for local testing
+const PORT = process.env.PORT || 4000; 
+
+server.listen(PORT, '0.0.0.0', () => {
+    console.log(`Server is running and listening on port ${PORT}`);
+});
