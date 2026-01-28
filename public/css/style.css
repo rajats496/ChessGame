@@ -175,3 +175,6 @@ body {
     align-items: center;
     justify-content: center;
 }
+canvas, .board {
+    touch-action: none; /* Prevents scrolling while dragging pieces */
+}
