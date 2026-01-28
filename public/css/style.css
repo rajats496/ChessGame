@@ -1,15 +1,70 @@
-/* --- Root Layout & Board Container --- */
+/* --- Root Layout --- */
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #18181b; /* zinc-900 */
+    margin: 0;
+    overflow-x: hidden; /* Prevent horizontal scroll on mobile */
+}
+
+.game-container {
+    flex: 1; 
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+    width: 100%;
+}
+
+/* --- Timer UI (Now Responsive) --- */
+.timer-wrapper {
+    display: flex;
+    justify-content: space-between;
+    width: 95vw; /* Scale with screen */
+    max-width: 600px; /* Cap at your original desktop size */
+    margin-bottom: 10px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.timer {
+    background: #262421;
+    color: #bababa;
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-size: 18px; /* Slightly smaller for mobile */
+    font-weight: bold;
+    min-width: 80px;
+    text-align: center;
+    border-bottom: 3px solid #403d39;
+}
+
+.timer.active {
+    background: #403d39;
+    color: #81b64c;
+    border-bottom-color: #81b64c;
+    box-shadow: 0 0 10px rgba(129, 182, 76, 0.2);
+}
+
+/* --- Board Container (The Main Fix) --- */
 .chessboard {
     display: grid;
-    grid-template-columns: repeat(8, minmax(0, 1fr));
-    grid-template-rows: repeat(8, minmax(0, 1fr));
-    width: 600px;
-    height: 600px;
-    border: 12px solid #3d2b1f; /* Wooden Frame */
+    grid-template-columns: repeat(8, 1fr);
+    grid-template-rows: repeat(8, 1fr);
+    /* RESPONSIVE SIZE: 95% of screen width, but never more than 600px */
+    width: 95vw; 
+    height: 95vw;
+    max-width: 600px;
+    max-height: 600px;
+    
+    border: 8px solid #3d2b1f; /* Adjusted thickness for mobile */
     border-radius: 4px;
     box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.4);
     position: relative;
     user-select: none;
+    touch-action: none; /* Prevents scrolling while dragging pieces */
     transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -23,29 +78,24 @@
     height: 100%;
 }
 
-.square.light {
-    background-color: #dee3e6; /* Modern Light Square */
-}
+.square.light { background-color: #dee3e6; }
+.square.dark { background-color: #8ca2ad; }
 
-.square.dark {
-    background-color: #8ca2ad; /* Modern Muted Blue-Grey Square */
-}
-
-/* Highlight for the square the King is on during Check */
 .square.check-red {
     background: radial-gradient(circle, #ff5e5e 0%, #a30000 100%) !important;
     animation: pulse-red 1.5s infinite;
     z-index: 1;
 }
 
-/* Highlight for the most recent move */
 .square.last-move {
     background-color: rgba(255, 255, 0, 0.4) !important;
 }
 
-/* --- Piece Styling --- */
+/* --- Piece Styling (Fixed Scaling) --- */
 .piece {
-    font-size: 50px;
+    /* Use 'vw' for font-size so it scales perfectly with the board */
+    font-size: 9vw; 
+    max-font-size: 50px; /* CSS doesn't support max-font-size directly, use media query below */
     cursor: grab;
     display: flex;
     align-items: center;
@@ -55,8 +105,12 @@
     z-index: 10;
     transition: transform 0.1s ease;
     background: transparent !important;
-    -webkit-appearance: none;
     font-family: "Arial", sans-serif;
+}
+
+/* Cap the piece size for desktop users */
+@media (min-width: 600px) {
+    .piece { font-size: 50px; }
 }
 
 .piece.white {
@@ -69,44 +123,19 @@
     filter: drop-shadow(0 0 1px rgba(255, 255, 255, 0.3));
 }
 
-.piece.draggable:hover {
-    transform: scale(1.08);
-    cursor: grab;
-}
-
-.piece:active {
-    cursor: grabbing;
-}
-
 .dragging {
     opacity: 0.4;
     transform: scale(1.2);
 }
 
-/* --- Board Flip Logic --- */
-.flipped {
-    transform: rotate(180deg);
-}
+/* --- Board Flip & Animations --- */
+.flipped { transform: rotate(180deg); }
+.flipped .piece { transform: rotate(180deg); }
 
-/* Counter-rotate pieces so they aren't upside down when board is flipped */
-.flipped .piece {
-    transform: rotate(180deg);
-}
-
-.flipped .piece.draggable:hover {
-    transform: rotate(180deg) scale(1.08);
-}
-
-/* --- Animations --- */
 @keyframes pulse-red {
     0% { box-shadow: inset 0 0 10px #ff0000; }
     50% { box-shadow: inset 0 0 30px #ff0000; }
     100% { box-shadow: inset 0 0 10px #ff0000; }
-}
-
-/* Shake animation for the King when in check */
-.square.check-red .piece {
-    animation: shake 0.5s infinite;
 }
 
 @keyframes shake {
@@ -115,66 +144,8 @@
     75% { transform: translateX(-2px); }
 }
 
-/* --- Timer & UI Elements --- */
-.timer-wrapper {
-    display: flex;
-    justify-content: space-between;
-    width: 600px;
-    margin-bottom: 10px;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
-
-.timer {
-    background: #262421;
-    color: #bababa;
-    padding: 8px 16px;
-    border-radius: 4px;
-    font-size: 20px;
-    font-weight: bold;
-    min-width: 100px;
-    text-align: center;
-    border-bottom: 3px solid #403d39;
-}
-
-.timer.active {
-    background: #403d39;
-    color: #81b64c; /* Active green */
-    border-bottom-color: #81b64c;
-}
-/* Ensure the controls are not affected by the board flip */
-.chessboard.flipped {
-    transform: rotate(180deg);
-}
-
-/* Specific styling for the buttons to make them look like a real app */
 button:disabled {
     opacity: 0.5;
     cursor: not-allowed;
     filter: grayscale(1);
-}
-
-.timer.active {
-    border-color: #81b64c;
-    color: #81b64c;
-    box-shadow: 0 0 10px rgba(129, 182, 76, 0.2);
-}
-body {
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    background-color: #18181b; /* zinc-900 */
-    margin: 0;
-}
-
-/* This pushes the footer to the bottom */
-.game-container {
-    flex: 1; 
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-}
-canvas, .board {
-    touch-action: none; /* Prevents scrolling while dragging pieces */
 }
