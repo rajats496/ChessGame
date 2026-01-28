@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="/css/style.css" class="css">
+    <title>Chess Game</title>
+    <style>
+        /* Ensure everything fits on screen */
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+        
+        .game-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            padding: 1rem;
+            box-sizing: border-box;
+        }
+        
+        /* Responsive board sizing */
+        .chessboard {
+            width: min(80vh, 90vw, 600px);
+            height: min(80vh, 90vw, 600px);
+            max-width: 600px;
+            max-height: 600px;
+        }
+        
+        @media (max-height: 800px) {
+            .chessboard {
+                width: min(60vh, 80vw, 450px);
+                height: min(60vh, 80vw, 450px);
+                max-width: 450px;
+                max-height: 450px;
+            }
+            
+            .timer-container {
+                margin-bottom: 0.5rem !important;
+            }
+            
+            .button-container {
+                margin-top: 0.5rem !important;
+                gap: 0.5rem !important;
+            }
+            
+            button {
+                padding: 0.5rem 1rem !important;
+                font-size: 0.875rem !important;
+            }
+        }
+        
+        @media (max-height: 650px) {
+            .chessboard {
+                width: min(50vh, 70vw, 350px);
+                height: min(50vh, 70vw, 350px);
+                max-width: 350px;
+                max-height: 350px;
+            }
+            
+            .timer-container {
+                font-size: 0.875rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container flex flex-col items-center justify-center min-h-screen bg-zinc-900 text-white">
+        
+        <div class="timer-container w-full max-w-[600px] flex justify-between mb-3 font-mono px-4">
+            <div id="white-timer" class="timer px-4 py-2 bg-zinc-800 rounded border border-white/10">White: 10:00</div>
+            <div id="black-timer" class="timer px-4 py-2 bg-zinc-800 rounded border border-white/10">Black: 10:00</div>
+        </div>
+
+        <div class="chessboard mb-3"></div>
+
+        <div class="button-container flex gap-4 mt-3">
+            <button id="draw-btn" class="px-6 py-2 bg-amber-600 hover:bg-amber-700 rounded-md font-bold transition-all active:scale-95">
+                Offer Draw
+            </button>
+            <button id="resign-btn" class="px-6 py-2 bg-red-600 hover:bg-red-700 rounded-md font-bold transition-all active:scale-95">
+                Resign
+            </button>
+        </div>
+        <footer class="mt-auto py-6 text-zinc-500 font-medium text-center">
+    Made with ❤️ by Rajat
+</footer>
+    </div>
+    
+    <script src="https://cdn.socket.io/4.8.1/socket.io.min.js" integrity="sha384-mkQ3/7FUtcGyoppY6bz/PORYoGqOl7/aSUMn2ymDOJcapfS6PHqxhRTMh1RR0Q6+" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
+    <script src="/js/playchess.js"></script>
+    
+</body>
+</html>
