@@ -72,7 +72,14 @@ const renderBoard = () => {
 // --- Socket Listeners ---
 socket.on("playerRole", (role) => { 
     playerRole = role; 
-    renderBoard(); 
+    renderBoard();
+    
+    // NEW: Show warning about inactivity timeout
+    setTimeout(() => {
+        if (chess.history().length === 0) {
+            alert("⚠️ Warning: You have 30 seconds to make your first move or you'll be removed!");
+        }
+    }, 5000); // Show warning after 5 seconds
 });
 
 socket.on("spectatorRole", () => { 
@@ -103,7 +110,7 @@ socket.on("gameOver", (data) => {
 });
 
 socket.on("gameRestarted", () => { 
-    alert("Game Reset!"); 
+    alert("Game Reset! You have 30 seconds to make your first move.");
     // Re-enable buttons after restart
     const drawBtn = document.getElementById("draw-btn");
     if (drawBtn) drawBtn.disabled = false;
@@ -122,6 +129,21 @@ socket.on("drawDeclined", () => {
     // Re-enable the draw button
     const drawBtn = document.getElementById("draw-btn");
     if (drawBtn) drawBtn.disabled = false;
+});
+
+// NEW: Handle inactivity removal
+socket.on("removedForInactivity", () => {
+    alert("❌ You have been removed from the game due to inactivity!\n\nYou must make your first move within 30 seconds.");
+    // Optionally reload the page or redirect
+    setTimeout(() => {
+        window.location.reload();
+    }, 2000);
+});
+
+// NEW: Notify when another player is removed
+socket.on("playerRemoved", (data) => {
+    alert(`${data.player.charAt(0).toUpperCase() + data.player.slice(1)} player was removed:\n${data.reason}`);
+    // The spot is now open for a new player
 });
 
 // --- Helpers ---
