@@ -181,7 +181,6 @@ server.listen(4000); // Change 4000 to your desired port
 3. Start Command: `node server.js`
 4. Deploy
 
-## 📱 Screenshots
 
 ### Main Game Board
 - 8x8 Chessboard with classic styling
@@ -209,18 +208,7 @@ server.listen(4000); // Change 4000 to your desired port
 - **Socket.IO** - WebSocket implementation
 - **EJS** - Template engine
 
-### Key Features Implementation
 
-#### Real-time Communication
-```javascript
-// Server broadcasts to all clients
-io.emit("move", move);
-
-// Server sends to specific client
-socket.emit("playerRole", "w");
-
-// Send to all except sender
-socket.broadcast.emit("drawOffered");
 ```
 
 #### Timer System
@@ -233,27 +221,6 @@ socket.broadcast.emit("drawOffered");
 - Clears on first move
 - Removes inactive players automatically
 
-## 🐛 Troubleshooting
-
-### Players Not Connecting
-- Check if server is running on correct port
-- Ensure no firewall blocking Socket.IO
-- Verify CORS settings if hosting remotely
-
-### Timers Not Working
-- Check browser console for errors
-- Ensure Socket.IO connection is established
-- Verify timer updates are being received
-
-### Pieces Not Moving
-- Verify you're assigned a role (not spectator)
-- Check if it's your turn
-- Ensure move is legal
-
-### Inactivity Timeout Issues
-- Make sure `hasGameStarted` flag resets properly
-- Check timeout clearance on moves
-- Verify setTimeout duration
 
 ## 🤝 Contributing
 
@@ -306,20 +273,6 @@ Contributions are welcome! Here's how you can help:
 - **Real-time**: Socket.IO WebSockets
 - **Game Logic**: Chess.js library
 
-## 🔮 Future Enhancements
-
-- [ ] Move history and notation
-- [ ] Undo/Redo moves
-- [ ] Save and load games
-- [ ] Multiple game rooms
-- [ ] Player profiles and ratings
-- [ ] Game analysis
-- [ ] Opening book integration
-- [ ] Puzzle mode
-- [ ] Tournament mode
-- [ ] Mobile app version
-
----
 
 ⭐ **Star this repo** if you found it helpful!
 
