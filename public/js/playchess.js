@@ -21,8 +21,13 @@ const renderBoard = () => {
             squareElement.dataset.row = rowindex;
             squareElement.dataset.col = colindex;
             const currentSquareNotation = `${String.fromCharCode(97 + colindex)}${8 - rowindex}`;
-        if (lastMove && (lastMove.from === currentSquareNotation || lastMove.to === currentSquareNotation)) {
-            squareElement.classList.add("last-move");
+        if (lastMove  ) {
+          if (lastMove.from === currentSquareNotation)  squareElement.classList.add("last-move");
+          else if(lastMove.to === currentSquareNotation)squareElement.classList.add("last-move-capture");
+        }
+        else {
+              squareElement.classList.remove("last-move");
+             squareElement.classList.remove("last-move-capture");
         }
 
             if (square) {
@@ -142,6 +147,9 @@ socket.on("gameOver", (data) => {
     const msg = data.winner === "Draw" ? "It's a Draw!" : `${data.winner} wins by ${data.reason}!`;
     if (confirm(msg + "\n\nPlay again?")) {
         socket.emit("rematchRequest");
+        
+          lastMove =null;
+       
     }
 });
 
@@ -185,6 +193,7 @@ socket.on("playerCount", (data) => {
 socket.on("ping", () => {
     socket.emit("pong");
 });
+
 
 // --- Helpers ---
 function handleMove(source, target) {
@@ -246,7 +255,7 @@ function highlightLastMove(from, to) {
 
     // 3. Add highlight to the 'to' square
     const toSquare = document.querySelector(`.square[data-square="${to}"]`);
-    if (toSquare) toSquare.classList.add('last-move');
+    if (toSquare) toSquare.classList.add('last-move-capture');
 }
 
 // Initial render
