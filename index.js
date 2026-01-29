@@ -97,7 +97,7 @@ app.get("/keep-alive", (req, res) => {
 // 2. Self-Ping function
 const wakeUpApp = async () => {
     try {
-        const url = "https://your-app-name.onrender.com/keep-alive"; // Yahan apni Render URL dalein
+        const url = "https://chess-battle.onrender.com/"; // Yahan apni Render URL dalein
         const response = await fetch(url);
         console.log(`Ping Success: ${response.statusText} - App is active.`);
     } catch (error) {
