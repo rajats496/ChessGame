@@ -4,6 +4,7 @@ const http=require('http')
 const {Chess}=require('chess.js')
 const path=require('path')
 const cors=require('cors')
+const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
 
  
 const app=express();
@@ -23,6 +24,7 @@ let timerInterval = null;
 // NEW: Track inactivity timeouts for each player
 let inactivityTimeouts = { white: null, black: null };
 let hasGameStarted = false; // Track if any move has been made
+
 
 function startTimer(io) {
     if (timerInterval) return;
@@ -86,6 +88,25 @@ function startInactivityTimeout(playerColor, socketId, io) {
 app.get("/",(req,resp)=>{
     resp.render('home',{title:"Chess Game "});
 })
+
+// 1. Ek endpoint banayein jise ping kiya ja sake
+app.get("/keep-alive", (req, res) => {
+    res.status(200).send("I'm awake!");
+});
+
+// 2. Self-Ping function
+const wakeUpApp = async () => {
+    try {
+        const url = "https://your-app-name.onrender.com/keep-alive"; // Yahan apni Render URL dalein
+        const response = await fetch(url);
+        console.log(`Ping Success: ${response.statusText} - App is active.`);
+    } catch (error) {
+        console.error("Ping Error:", error.message);
+    }
+};
+
+// 3. Har 10 minute mein trigger karein (600,000 ms)
+setInterval(wakeUpApp, 600000);
 
 io.on("connection",(uniquesocket)=>{
     uniquesocket.emit("boardState", chess.fen());
