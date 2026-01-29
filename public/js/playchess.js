@@ -5,6 +5,7 @@ const boardElement = document.querySelector(".chessboard");
 let draggedPiece = null;
 let sourceSquare = null;
 let playerRole = null;
+let lastMove = null; // To store the latest move globally
 
 const renderBoard = () => {
     const board = chess.board();
@@ -19,6 +20,10 @@ const renderBoard = () => {
             squareElement.classList.add("square", (rowindex + colindex) % 2 === 0 ? "light" : "dark");
             squareElement.dataset.row = rowindex;
             squareElement.dataset.col = colindex;
+            const currentSquareNotation = `${String.fromCharCode(97 + colindex)}${8 - rowindex}`;
+        if (lastMove && (lastMove.from === currentSquareNotation || lastMove.to === currentSquareNotation)) {
+            squareElement.classList.add("last-move");
+        }
 
             if (square) {
                 const pieceElement = document.createElement("div");
@@ -124,6 +129,7 @@ socket.on("boardState", (fen) => {
 
 socket.on("move", (move) => { 
     chess.move(move); 
+    lastMove = move; // NEW: Store the move object {from: 'e2', to: 'e4'}
     renderBoard(); 
 });
 
@@ -187,6 +193,10 @@ function handleMove(source, target) {
         to: `${String.fromCharCode(97 + target.col)}${8 - target.row}`,
         promotion: "q",
     };
+if (move) {
+    renderBoard(); // Your existing board render function
+    highlightLastMove(move.from, move.to); // Call the highlight here
+}
     socket.emit("move", move);
 }
 
@@ -224,6 +234,20 @@ resignBtn.addEventListener("click", () => {
         socket.emit("resign");
     }
 });
+function highlightLastMove(from, to) {
+    // 1. Remove 'last-move' class from all squares
+    document.querySelectorAll('.square').forEach(sq => {
+        sq.classList.remove('last-move');
+    });
+
+    // 2. Add highlight to the 'from' square
+    const fromSquare = document.querySelector(`.square[data-square="${from}"]`);
+    if (fromSquare) fromSquare.classList.add('last-move');
+
+    // 3. Add highlight to the 'to' square
+    const toSquare = document.querySelector(`.square[data-square="${to}"]`);
+    if (toSquare) toSquare.classList.add('last-move');
+}
 
 // Initial render
 renderBoard();
