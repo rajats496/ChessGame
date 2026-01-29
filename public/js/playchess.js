@@ -10,7 +10,6 @@ const renderBoard = () => {
     const board = chess.board();
     boardElement.innerHTML = "";
     
-    // Check detection logic
     const isCheck = chess.isCheck ? chess.isCheck() : chess.in_check();
     const turn = chess.turn();
 
@@ -25,7 +24,6 @@ const renderBoard = () => {
                 const pieceElement = document.createElement("div");
                 pieceElement.classList.add("piece", square.color === "w" ? "white" : "black");
                 
-                // Highlight King in red if in check
                 if (square.type === "k" && square.color === turn && isCheck) {
                     squareElement.classList.add("check-red");
                 }
@@ -69,22 +67,54 @@ const renderBoard = () => {
     else boardElement.classList.remove("flipped");
 };
 
+// NEW: Update role display
+function updateRoleDisplay(role) {
+    const roleElement = document.getElementById("player-role");
+    if (role === 'w') {
+        roleElement.innerHTML = '<span class="role-badge white-role">⚪ You are White Player</span>';
+        roleElement.className = 'role-display white-player';
+    } else if (role === 'b') {
+        roleElement.innerHTML = '<span class="role-badge black-role">⚫ You are Black Player</span>';
+        roleElement.className = 'role-display black-player';
+    } else {
+        roleElement.innerHTML = '<span class="role-badge spectator-role">👁️ You are Spectator</span>';
+        roleElement.className = 'role-display spectator';
+    }
+}
+
+// NEW: Update player count display
+function updatePlayerCountDisplay(data) {
+    const countElement = document.getElementById("player-count");
+    countElement.innerHTML = `
+        <div class="count-item ${data.white ? 'filled' : 'empty'}">
+            <span class="dot white-dot"></span> White: ${data.white ? 'Connected' : 'Waiting...'}
+        </div>
+        <div class="count-item ${data.black ? 'filled' : 'empty'}">
+            <span class="dot black-dot"></span> Black: ${data.black ? 'Connected' : 'Waiting...'}
+        </div>
+        <div class="count-item">
+            <span class="dot spectator-dot"></span> Spectators: ${data.spectators}
+        </div>
+    `;
+}
+
 // --- Socket Listeners ---
 socket.on("playerRole", (role) => { 
     playerRole = role; 
     renderBoard();
+    updateRoleDisplay(role);
     
-    // NEW: Show warning about inactivity timeout
     setTimeout(() => {
         if (chess.history().length === 0) {
             alert("⚠️ Warning: You have 30 seconds to make your first move or you'll be removed!");
         }
-    }, 5000); // Show warning after 5 seconds
+    }, 5000);
 });
 
 socket.on("spectatorRole", () => { 
     playerRole = null; 
-    renderBoard(); 
+    renderBoard();
+    updateRoleDisplay(null);
 });
 
 socket.on("boardState", (fen) => { 
@@ -111,7 +141,6 @@ socket.on("gameOver", (data) => {
 
 socket.on("gameRestarted", () => { 
     alert("Game Reset! You have 30 seconds to make your first move.");
-    // Re-enable buttons after restart
     const drawBtn = document.getElementById("draw-btn");
     if (drawBtn) drawBtn.disabled = false;
 });
@@ -126,24 +155,29 @@ socket.on("drawOffered", () => {
 
 socket.on("drawDeclined", () => {
     alert("Draw offer declined.");
-    // Re-enable the draw button
     const drawBtn = document.getElementById("draw-btn");
     if (drawBtn) drawBtn.disabled = false;
 });
 
-// NEW: Handle inactivity removal
 socket.on("removedForInactivity", () => {
     alert("❌ You have been removed from the game due to inactivity!\n\nYou must make your first move within 30 seconds.");
-    // Optionally reload the page or redirect
     setTimeout(() => {
         window.location.reload();
     }, 2000);
 });
 
-// NEW: Notify when another player is removed
 socket.on("playerRemoved", (data) => {
     alert(`${data.player.charAt(0).toUpperCase() + data.player.slice(1)} player was removed:\n${data.reason}`);
-    // The spot is now open for a new player
+});
+
+// NEW: Handle player count updates
+socket.on("playerCount", (data) => {
+    updatePlayerCountDisplay(data);
+});
+
+// NEW: Handle ping to prevent sleep mode
+socket.on("ping", () => {
+    socket.emit("pong");
 });
 
 // --- Helpers ---
@@ -171,7 +205,7 @@ function formatTime(seconds) {
     return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
 }
 
-// --- Button Event Listeners (SINGLE DEFINITION) ---
+// --- Button Event Listeners ---
 const drawBtn = document.getElementById("draw-btn");
 const resignBtn = document.getElementById("resign-btn");
 
@@ -180,8 +214,6 @@ drawBtn.addEventListener("click", () => {
     
     socket.emit("offerDraw");
     alert("Draw offer sent. Waiting for opponent...");
-    
-    // Temporarily disable to prevent multiple offers
     drawBtn.disabled = true;
 });
 
